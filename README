@@ -1,0 +1,41 @@
+# ShadowTrain Viewer
+
+ESP32-S3 based network image viewer for ShadowTrain.
+
+## Hardware
+
+- Waveshare ESP32-S3-Touch-LCD-4.3B
+- 800x480 RGB LCD
+- 8 MB PSRAM
+- ESP32-S3-WROOM-1-N16R8
+
+## Current Features
+
+- RGB framebuffer
+- Graphics library
+- Bitmap font rendering
+- PNG asset conversion
+- Splash screen
+- Wi-Fi connectivity
+- IP address display
+
+## Planned Features
+
+- HTTP server
+- JPEG decoding
+- Image streaming from Jetson Orin Nano
+- Touch interface
+
+## Build
+
+Copy:
+
+include/Config.example.h
+
+to
+
+include/Config.h
+
+and enter your Wi-Fi credentials.
+
+Build with PlatformIO.
