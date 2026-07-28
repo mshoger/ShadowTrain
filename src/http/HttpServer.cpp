@@ -9,16 +9,20 @@ HttpServer::HttpServer()
 
 void HttpServer::begin()
 {
-    Serial.printf("IP: %s\n", WiFi.localIP().toString().c_str());
-
     m_server.on("/", [this]()
     {
         handleRoot();
     });
 
+    m_server.on("/status", [this]()
+    {
+        handleStatus();
+    });
+
     m_server.begin();
 
-    Serial.println("HTTP server started");
+    Serial.printf("HTTP server listening on http://%s/\n",
+                  WiFi.localIP().toString().c_str());
 }
 
 void HttpServer::loop()
@@ -28,7 +32,20 @@ void HttpServer::loop()
 
 void HttpServer::handleRoot()
 {
-    Serial.println("Received GET /");
+        m_server.send(200, "text/plain", "Hello from ShadowTrain!");
+}
 
-    m_server.send(200, "text/plain", "Hello from ShadowTrain!");
+void HttpServer::handleStatus()
+{
+    String json;
+
+    json += "{";
+    json += "\"device\":\"ShadowTrain Viewer\",";
+    json += "\"version\":\"0.2.0\",";
+    json += "\"ip\":\"" + WiFi.localIP().toString() + "\",";
+    json += "\"ssid\":\"" + WiFi.SSID() + "\",";
+    json += "\"rssi\":" + String(WiFi.RSSI());
+    json += "}";
+
+    m_server.send(200, "application/json", json);
 }

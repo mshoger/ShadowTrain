@@ -14,4 +14,5 @@ private:
     WebServer m_server;
 
     void handleRoot();
+    void handleStatus();
 };
