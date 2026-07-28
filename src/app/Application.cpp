@@ -27,6 +27,11 @@ void Application::begin()
     //
     // Initialize hardware
     //
+    Serial.begin(115200);
+    delay(1000);
+
+    Serial.println("ShadowTrain Viewer starting...");
+    
     display.begin();
 
     graphics.begin(
@@ -43,10 +48,13 @@ void Application::begin()
     // Connect to Wi-Fi
     //
     connectToWiFi();
+
+    server.begin();
 }
 
 void Application::loop()
 {
+    server.loop();
     //
     // Future work:
     //

@@ -3,6 +3,7 @@
 #include "../display/Display.h"
 #include "../graphics/Graphics.h"
 #include "../network/Network.h"
+#include "../http/HttpServer.h"
 
 class Application
 {
@@ -19,4 +20,5 @@ private:
     Display display;
     Graphics graphics;
     WiFiManager network;
+    HttpServer server;
 };
