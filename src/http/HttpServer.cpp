@@ -1,4 +1,5 @@
 #include "HttpServer.h"
+#include <WebServer.h>
 #include <Arduino.h>
 #include <WiFi.h>
 
@@ -19,6 +20,16 @@ void HttpServer::begin()
         handleStatus();
     });
 
+    m_server.on("/frame", HTTP_POST, [this]()
+    {
+        handleFrame();
+    });
+
+    m_server.onNotFound([this]()
+    {
+        m_server.send(404, "text/plain", "Not Found");
+    });
+
     m_server.begin();
 
     Serial.printf("HTTP server listening on http://%s/\n",
@@ -32,7 +43,8 @@ void HttpServer::loop()
 
 void HttpServer::handleRoot()
 {
-        m_server.send(200, "text/plain", "Hello from ShadowTrain!");
+    m_server.sendHeader("Location", "/status");
+    m_server.send(302, "text/plain", "");
 }
 
 void HttpServer::handleStatus()
@@ -40,12 +52,40 @@ void HttpServer::handleStatus()
     String json;
 
     json += "{";
+
     json += "\"device\":\"ShadowTrain Viewer\",";
     json += "\"version\":\"0.2.0\",";
-    json += "\"ip\":\"" + WiFi.localIP().toString() + "\",";
-    json += "\"ssid\":\"" + WiFi.SSID() + "\",";
-    json += "\"rssi\":" + String(WiFi.RSSI());
+
+    json += "\"wifi\":{";
+    json += "\"connected\":";
+    json += (WiFi.status() == WL_CONNECTED) ? "true" : "false";
+    json += ",";
+    json += "\"ssid\":\"";
+    json += WiFi.SSID();
+    json += "\",";
+    json += "\"ip\":\"";
+    json += WiFi.localIP().toString();
+    json += "\",";
+    json += "\"rssi\":";
+    json += String(WiFi.RSSI());
+    json += "},";
+
+    json += "\"display\":{";
+    json += "\"width\":800,";
+    json += "\"height\":480";
+    json += "}";
+
     json += "}";
 
     m_server.send(200, "application/json", json);
+}
+
+void HttpServer::handleFrame()
+{
+    String response;
+
+    response += "Content-Length: ";
+    response += String(m_server.clientContentLength());
+
+    m_server.send(200, "text/plain", response);
 }

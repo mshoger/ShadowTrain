@@ -15,4 +15,5 @@ private:
 
     void handleRoot();
     void handleStatus();
+    void handleFrame();
 };

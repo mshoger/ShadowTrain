@@ -16,6 +16,7 @@ public:
 private:
     void showSplash();
     bool connectToWiFi();
+    void updateStatus();
 
     Display display;
     Graphics graphics;
