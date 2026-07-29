@@ -31,7 +31,7 @@ void Application::begin()
     delay(1000);
 
     Serial.println("ShadowTrain Viewer starting...");
-    
+
     display.begin();
 
     graphics.begin(
@@ -47,19 +47,49 @@ void Application::begin()
     //
     // Connect to Wi-Fi
     //
-    connectToWiFi();
+    if (connectToWiFi())
+    {
+        //
+        // Start HTTP server
+        //
+        server.begin();
 
-    server.begin();
+        graphics.drawString(
+            LEFT_MARGIN,
+            STATUS_Y + LINE_HEIGHT * 2,
+            "Server  : Running      ",
+            Colors::Green);
+
+        Serial.println("HTTP server started.");
+    }
+    else
+    {
+        graphics.drawString(
+            LEFT_MARGIN,
+            STATUS_Y + LINE_HEIGHT * 2,
+            "Server  : Offline      ",
+            Colors::Red);
+
+        Serial.println("HTTP server not started.");
+    }
 }
 
 void Application::loop()
 {
-    server.loop();
+    //
+    // Only service the HTTP server while connected.
+    // Later we'll add automatic reconnect logic here.
+    //
+    if (network.connected())
+    {
+        server.loop();
+    }
+
     //
     // Future work:
     //
+    // - Automatic Wi-Fi reconnect
     // - Touch handling
-    // - Network polling
     // - Image reception
     // - UI updates
     //
@@ -73,8 +103,8 @@ void Application::showSplash()
     // Draw logo
     //
     int logoX = (display.width() - ShadowTrainLogoWidth) / 2;
-   
-   graphics.drawImage(
+
+    graphics.drawImage(
         logoX,
         LOGO_TOP,
         ShadowTrainLogoWidth,
@@ -112,7 +142,7 @@ void Application::showSplash()
         Colors::Gray);
 }
 
-void Application::connectToWiFi()
+bool Application::connectToWiFi()
 {
     if (network.begin(WIFI_SSID, WIFI_PASSWORD))
     {
@@ -133,13 +163,15 @@ void Application::connectToWiFi()
             IP_Y,
             network.ipAddress().c_str(),
             Colors::Cyan);
+
+        return true;
     }
-    else
-    {
-        graphics.drawString(
-            LEFT_MARGIN,
-            STATUS_Y + LINE_HEIGHT,
-            "Wi-Fi   : FAILED         ",
-            Colors::Red);
-    }
+
+    graphics.drawString(
+        LEFT_MARGIN,
+        STATUS_Y + LINE_HEIGHT,
+        "Wi-Fi   : FAILED         ",
+        Colors::Red);
+
+    return false;
 }

@@ -8,40 +8,65 @@ WiFiManager::WiFiManager()
 bool WiFiManager::begin(const char* ssid, const char* password)
 {
     WiFi.mode(WIFI_STA);
-    WiFi.begin(ssid, password);
 
-    Serial.print("Connecting");
+    Serial.println("Scanning for networks...");
 
-    int retries = 0;
+    int n = WiFi.scanNetworks();
 
-    while (WiFi.status() != WL_CONNECTED && retries < 20)
+    if (n == 0)
     {
-        delay(500);
-        Serial.print(".");
-        retries++;
-    }
-
-    m_connected = (WiFi.status() == WL_CONNECTED);
-
-    if (m_connected)
-    {
-        Serial.println();
-        Serial.println("Connected");
-        Serial.print("IP: ");
-        Serial.println(WiFi.localIP());
+        Serial.println("No networks found.");
     }
     else
     {
-        Serial.println();
-        Serial.println("Connection failed");
+        Serial.printf("Found %d network(s):\n", n);
+
+        for (int i = 0; i < n; i++)
+        {
+            Serial.printf("%2d: %-32s RSSI=%4d Ch=%2d %s\n",
+                          i + 1,
+                          WiFi.SSID(i).c_str(),
+                          WiFi.RSSI(i),
+                          WiFi.channel(i),
+                          (WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? "Open" : "Secured");
+        }
     }
 
-    return m_connected;
+    Serial.printf("\nConnecting to '%s'...\n", ssid);
+
+    WiFi.begin(ssid, password);
+
+    int retries = 20;
+
+    while (WiFi.status() != WL_CONNECTED && retries-- > 0)
+    {
+        Serial.print(".");
+        delay(500);
+    }
+
+    Serial.println();
+
+    if (WiFi.status() == WL_CONNECTED)
+    {
+        m_connected = true;
+
+        Serial.println("Connected!");
+        Serial.print("IP Address: ");
+        Serial.println(WiFi.localIP());
+
+        return true;
+    }
+
+    m_connected = false;
+
+    Serial.printf("Connection failed. WiFi.status() = %d\n", WiFi.status());
+
+    return false;
 }
 
 bool WiFiManager::connected() const
 {
-    return WiFi.status() == WL_CONNECTED;
+    return m_connected && WiFi.status() == WL_CONNECTED;
 }
 
 String WiFiManager::ipAddress() const

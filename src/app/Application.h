@@ -15,7 +15,7 @@ public:
 
 private:
     void showSplash();
-    void connectToWiFi();
+    bool connectToWiFi();
 
     Display display;
     Graphics graphics;

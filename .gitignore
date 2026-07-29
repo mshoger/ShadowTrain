@@ -15,3 +15,5 @@
 
 # User configuration
 include/Config.h
+include/Config.h.home
+include/Config.h.prod
