@@ -52,7 +52,7 @@ void Application::begin()
         //
         // Start HTTP server
         //
-        server.begin();
+        server.begin(display);
 
         graphics.drawString(
             LEFT_MARGIN,

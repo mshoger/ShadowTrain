@@ -8,6 +8,7 @@ WiFiManager::WiFiManager()
 bool WiFiManager::begin(const char* ssid, const char* password)
 {
     WiFi.mode(WIFI_STA);
+    WiFi.setHostname("shadowviewer");
 
     Serial.println("Scanning for networks...");
 
@@ -47,15 +48,24 @@ bool WiFiManager::begin(const char* ssid, const char* password)
     Serial.println();
 
     if (WiFi.status() == WL_CONNECTED)
+{
+    m_connected = true;
+
+    Serial.println("Connected!");
+    Serial.print("IP Address: ");
+    Serial.println(WiFi.localIP());
+
+    if (MDNS.begin("shadowviewer"))
     {
-        m_connected = true;
-
-        Serial.println("Connected!");
-        Serial.print("IP Address: ");
-        Serial.println(WiFi.localIP());
-
-        return true;
+        Serial.println("mDNS responder started");
     }
+    else
+    {
+        Serial.println("Failed to start mDNS");
+    }
+
+    return true;
+}
 
     m_connected = false;
 
